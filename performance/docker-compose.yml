@@ -1,0 +1,32 @@
+services:
+  mantis_mysql:
+    image: mysql:5.7.44
+    container_name: mantis_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - mantis_mysql_data:/var/lib/mysql
+
+  mantis:
+    image: vimagick/mantisbt
+    container_name: mantis_web
+    depends_on:
+      - mantis_mysql
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mantis_phpmyadmin
+    depends_on:
+      - mantis_mysql
+    environment:
+      PMA_HOST: mantis_mysql
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+volumes:
+  mantis_mysql_data:
