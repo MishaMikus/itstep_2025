@@ -6,4 +6,5 @@
 ## run server from raw results
 `allure serve allure-results`
 
+
 ## task 20
