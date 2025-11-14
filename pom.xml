@@ -143,4 +143,24 @@
 <!--            </plugin>-->
 <!--        </plugins>-->
 <!--    </build>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <argLine>-Djava.awt.headless=true</argLine>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                    <enableAssertions>true</enableAssertions>
+
+                    <!--  Prevent Surefire from injecting AspectJ agent -->
+                    <skipAfterFailureCount>1</skipAfterFailureCount>
+                    <additionalClasspathElements/>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
