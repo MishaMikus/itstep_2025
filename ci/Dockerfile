@@ -3,14 +3,15 @@ FROM jenkins/jenkins:lts
 USER root
 
 # ---------- Install utilities ----------
-USER root
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     unzip \
     gnupg2 \
     xvfb \
-    --no-install-recommends
+    ca-certificates \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Maven
 ARG MAVEN_VERSION=3.9.9
@@ -33,10 +34,7 @@ RUN wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_
 ENV ALLURE_HOME=/opt/allure-${ALLURE_VERSION}
 ENV PATH=$ALLURE_HOME/bin:$PATH
 
-
-# ============
 # Install JMeter
-# ============
 ARG JMETER_VERSION=5.6.2
 ENV JMETER_HOME=/opt/apache-jmeter-${JMETER_VERSION}
 ENV PATH=$JMETER_HOME/bin:$PATH
@@ -45,12 +43,14 @@ RUN wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_
     && tar -xzf /tmp/apache-jmeter-${JMETER_VERSION}.tgz -C /opt \
     && rm /tmp/apache-jmeter-${JMETER_VERSION}.tgz
 
-# ---------- Install Google Chrome ----------
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" \
-    > /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && \
-    apt-get install -y google-chrome-stable \
+# Add Google Chrome repository
+RUN curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-linux-signing-key.gpg
+RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-key.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+    > /etc/apt/sources.list.d/google-chrome.list
+
+# Install Google Chrome
+RUN apt-get update && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
 # Switch back to Jenkins user
 USER jenkins
